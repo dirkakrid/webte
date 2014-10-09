@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>VX</title>
+    <link rel="stylesheet" href="{{ static_url('css/base.css') }}">
+  </head>
+  <body>
+    <pre class="terminal"><code>Hello World</code></pre>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script>
+     var ws = new WebSocket("ws://localhost:7000/terminal");
+     ws.onopen = function() {
+
+     };
+     $("html").keypress(function (e) {
+       ws.send(e.which);
+       e.preventDefault();
+     });
+     $("html").keydown(function (e) {
+       if (e.which < 47) {
+	 ws.send(e.which);
+	 e.preventDefault();
+       }
+     });
+     ws.onmessage = function (evt) {
+       $("pre.terminal code").text(evt.data);
+     };
+    </script>
+  </body>
+</html>
