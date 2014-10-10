@@ -14,17 +14,30 @@
 
      };
      $("html").keypress(function (e) {
-       ws.send(e.which);
-       e.preventDefault();
+         ws.send(String.fromCharCode(e.which));
+         e.preventDefault();
      });
+     var nativeKeys = [
+         8, 9, 13, 27, 35, 36, 45, 112, 113, 114, 115,
+         116, 117, 118, 119, 120, 121, 122, 123, 144, 145,
+     ];
      $("html").keydown(function (e) {
-       if (e.which < 47) {
-	 ws.send(e.which);
-	 e.preventDefault();
-       }
+         var data = undefined;
+         if (e.which == 33) { data = '\u001B<'; }
+         if (e.which == 33) { data = '\u001B<'; }
+         if (e.which == 34) { data = '\u001B>'; }
+         if (e.which == 37) { data = '\u001Bb';  }
+         if (e.which == 38) { data = '\u001Bp';  }
+         if (e.which == 39) { data = '\u001Bf';  }
+         if (e.which == 40) { data = '\u001Bn';  }
+         if (e.which == 46) { data = '\u001Bd';  }
+         if (nativeKeys.indexOf(e.which) > -1) {
+	     ws.send(String.fromCharCode(e.which));
+	     e.preventDefault();
+         }
      });
      ws.onmessage = function (evt) {
-       $("pre.terminal code").text(evt.data);
+         $("pre.terminal code").html(evt.data);
      };
     </script>
   </body>

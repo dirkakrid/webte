@@ -4,12 +4,15 @@ import pyte
 
 class TerminalWebSocket(tornado.websocket.WebSocketHandler):
 
+    env = {"TERM": "vt100"}
+    cmd = ["ssh", "-tt", "localhost"]
+
     def open(self):
         self.stream = pyte.ByteStream()
         self.screen = pyte.Screen(80, 24)
         self.stream.attach(self.screen)
         self.proc = tornado.process.Subprocess(
-            "ssh -tt localhost", shell=True,
+            self.cmd, env=self.env, shell=False,
             stdin=tornado.process.Subprocess.STREAM,
             stdout=tornado.process.Subprocess.STREAM,
             stderr=tornado.process.Subprocess.STREAM)
@@ -22,11 +25,11 @@ class TerminalWebSocket(tornado.websocket.WebSocketHandler):
             callback=self.on_close, streaming_callback=self.on_process_read)
 
     def on_message(self, message):
-        self.stdin.write_to_fd(bytes([int(message.encode())]))
+        self.stdin.write_to_fd(message.encode())
 
     def on_process_read(self, text):
         self.stream.feed(text)
         self.write_message("\n".join(self.screen.display))
 
-    def on_close(self):
+    def on_close(self, *args):
         self.proc.proc.terminate()
